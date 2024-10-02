@@ -1,0 +1,102 @@
+﻿@model ItemCrud.Models.ItemModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>ItemModel</h4>
+<hr />
+<form id="itemForm">
+     <@Html head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </@Html head>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>ItemModel</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id, new { id = "hiddenId" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ItemName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.ItemName, new { @class = "form-control", @id = "Name", required = "required" })
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ItemDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.ItemDescription, new { @class = "form-control", @id = "Description", required = "required" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+    </form>
+<script>
+
+    $(document).ready(function () {
+        $("#itemForm").submit(function (event) {
+            event.preventDefault();
+           var idValue = $('#hiddenId').val();
+            var name = $("#Name").val().trim();
+            var description = $("#Description").val().trim();
+            if (!name) {
+                alert("Name is required.").css("color", "red");
+            }
+            //else if (name.length < 5) {
+            //    alert("Name must be at least 5 characters long.").css("color", "red");
+            //}
+            else if (!/^[A-Za-z]+(\s[A-Za-z]+)*$/.test(name)) {
+                alert("Name must be alphanumeric.").css("color", "red");
+            }
+            if (!description) {
+                alert("Description is required.").css("color", "red");
+            }
+            else if (!/^[A-Za-z]+(\s[A-Za-z]+)*$/.test(description)) {
+                alert("Description must be alphanumeric.").css("color", "red");
+            }
+            // Perform AJAX request to add item
+            var data = {
+                Id: idValue,
+                ItemName: name,
+                ItemDescription: description
+            }
+            $.ajax({
+                type: "Put",
+                contentType: 'application/json',
+                url: 'https://localhost:44339/Items/UpdateItem',
+                data: JSON.stringify(data),
+                success: function () {
+                    //alert("Item added successfully!").css("color", "green")
+                    window.location.href = 'https://localhost:44331/';
+                },
+                error: function () {
+                    alert("Error adding item.").css("color", "red");
+                }
+            });
+        });
+    });
+
+</script>
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
